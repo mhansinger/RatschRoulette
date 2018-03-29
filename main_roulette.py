@@ -1,9 +1,9 @@
 # main file to run the messageing bot
 
-from MessageBot import MessageBot
+from RouletteBot import RouletteBot
 from telepot.loop import MessageLoop
 
-myBot = MessageBot()
+myBot = RouletteBot()
 
 if __name__ == '__main__':
 

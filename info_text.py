@@ -11,5 +11,5 @@ info_text = 'So you need more information... OK! \nThis is the NEW NEW NEW highl
 
 roulette_info = 'The roulette is great fun!\n' \
                 'Just start your message with a &roulette in the beginning, e.g., &roulette bla bla bla ...\n' \
-                'A randomly selected user will get your message and you will be informed who received it. Be nice, ' \
-                'the receiver will also know who you are!'
+                'A randomly selected user will get your message and you will be informed who received it. \nBe nice, ' \
+                'the receiver will see who sent this random message! '

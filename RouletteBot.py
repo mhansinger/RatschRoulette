@@ -16,7 +16,7 @@ from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
 from TOKEN import TOKEN
 
-class MessageBot(object):
+class RouletteBot(object):
     def __init__(self):
         self.bot = telepot.Bot(TOKEN)
         if os.path.isfile('Data/user_list.csv'):
@@ -214,7 +214,7 @@ class MessageBot(object):
                 self.bot.sendMessage(random_id,sender_says+message)
                 # tells the sender who received the message
                 self.bot.sendMessage(chat_id, 'Your message was sent to: %s' % random_user)
-                print('Random massage from %s to %s' % (this_sender, random_user))
+                print('Random message from %s to %s' % (this_sender, random_user))
             except:
                 self.bot.sendMessage(chat_id, 'This was a NULL. Void wins, try again!')
 
