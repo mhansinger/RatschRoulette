@@ -7,6 +7,8 @@
 
 *.csv
 
+__pycache__
+
 vote.py
 quiz.py
 guess.py

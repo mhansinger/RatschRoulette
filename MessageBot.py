@@ -7,12 +7,12 @@ import hashlib
 import json
 from time import time
 from urllib.parse import urlparse
-from uuid import uuid4
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-from telepot.loop import MessageLoop
+
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
-from TOKEN import TOKEN
+from Data.TOKEN import TOKEN
 
 class MessageBot(object):
     def __init__(self):
@@ -145,10 +145,3 @@ class MessageBot(object):
                 user_list=str(u)+'\n'+user_list
             #user_list.append([u for u in user_list_array])
             self.bot.sendMessage(chat_id, str(user_list))
-
-
-
-#bot = telepot.Bot(TOKEN)
-myBot = MessageBot()
-MessageLoop(myBot.bot, myBot.handle).run_as_thread()
-print('Listening ...')
