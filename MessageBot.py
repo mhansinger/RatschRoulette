@@ -3,6 +3,7 @@ import pandas as pd
 import telepot
 import urllib3
 import os
+import random
 import hashlib
 import json
 from time import time
@@ -29,29 +30,31 @@ class MessageBot(object):
         self._newuser_id = None
         self._change_id = None
 
-        self.key_words = ['/info','/getusers','/start','/hallo','/send','/help','/bot','/sendtrans','/changeuser']
+        self.key_words = ['/info','/getusers','/start','/hallo','/send','/help','/bot','/sendtrans','/changeuser',
+                          '/roulette_info','&roulette']
 
     def handle(self,msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
         #print(content_type, chat_type, chat_id)
         if content_type == 'text':
-             #bot.sendMessage(chat_id, msg['text'])
-            #print(content_type, chat_type, chat_id)
-             #check if it is a new user
+
+            # standard functions without bool return
+            self.get_info(content_type, chat_type, chat_id, msg)
+            self.get_users(content_type, chat_type, chat_id, msg)
+            self.roulette(content_type, chat_type, chat_id, msg)
+
+            # these functions need to return a bool
             adduser = self.new_user(content_type, chat_type, chat_id, msg)
             chg_name = self.change_name(content_type, chat_type, chat_id, msg)
 
-            self.get_info(content_type, chat_type, chat_id, msg)
-            self.get_users(content_type, chat_type, chat_id, msg)
-
             text = msg['text']
             # only go there if there is no
-            if not any([adduser, chg_name]):
+            if any(x in self.key_words for x in text.split()) is False and not any([adduser, chg_name]):
                  self.on_chat_message(content_type, chat_type, chat_id, msg)
 
-    def write_users(self,user_list):
-        with open("users.csv", 'w') as users_file:
-            users_file.write("\n".join([str(uid) for uid in user_list]))
+    #def write_users(self,user_list):
+    #    with open("users.csv", 'w') as users_file:
+    #        users_file.write("\n".join([str(uid) for uid in user_list]))
 
     def new_user(self,content_type, chat_type, chat_id, msg):
         greeter_dict = ['/start','/hallo']
@@ -153,6 +156,14 @@ class MessageBot(object):
             except:
                 self.bot.sendMessage(chat_id, 'Sorry... no infos.')
 
+        elif text == '/roulette_info':
+            try:
+                from info_text import roulette_info
+                self.bot.sendMessage(chat_id, roulette_info)
+            except:
+                self.bot.sendMessage(chat_id, 'Sorry... no infos.')
+
+
 
     def get_users(self, content_type, chat_type, chat_id, msg):
         # this will send the user names
@@ -186,6 +197,26 @@ class MessageBot(object):
             return True
         else:
             return False
+
+    def roulette(self, content_type, chat_type, chat_id, msg):
+        # this will send the message to a randomly chosen user
+        text = msg['text']
+        first_word = msg['text'].split(' ', 1)[0]
+        if first_word == '&roulette':
+            message = text[1:]
+            this_sender = self.users.user_name.loc[self.users['id'] == chat_id].values[0]
+            sender_says = 'Roulette! ' + this_sender + ': \n'
+            all_ids = self.users['id'].values
+            random_id = int(random.choice(all_ids))
+            random_user = self.users.user_name.loc[self.users['id'] == random_id].values[0]
+            try:
+                # send it to the random user
+                self.bot.sendMessage(random_id,sender_says+message)
+                # tells the sender who received the message
+                self.bot.sendMessage(chat_id, 'Your message was sent to: %s' % random_user)
+                print('Random massage from %s to %s' % (this_sender, random_user))
+            except:
+                self.bot.sendMessage(chat_id, 'This was a NULL. Void wins, try again!')
 
 
     def update_keywords(self):
