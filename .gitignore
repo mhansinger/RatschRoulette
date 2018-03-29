@@ -1,0 +1,14 @@
+# gitignore
+
+*.key
+
+*TOKEN*
+*.sqlite3
+
+*.csv
+
+vote.py
+quiz.py
+guess.py
+
+TOKEN.py
