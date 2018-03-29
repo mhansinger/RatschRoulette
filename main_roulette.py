@@ -3,7 +3,9 @@
 from MessageBot import MessageBot
 from telepot.loop import MessageLoop
 
-if __name__ == '__main__':
-    myBot = MessageBot()
+myBot = MessageBot()
+
+def run_bot():
+
     MessageLoop(myBot.bot, myBot.handle).run_as_thread()
     print('Listening ...')

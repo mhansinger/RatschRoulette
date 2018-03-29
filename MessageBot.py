@@ -7,6 +7,7 @@ import hashlib
 import json
 from time import time
 from urllib.parse import urlparse
+from telepot.loop import MessageLoop
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -26,13 +27,14 @@ class MessageBot(object):
             self.users.to_csv('Data/user_list.csv')
 
         self._newuser_id = None
+        self.key_words = ['/info','/getusers','/start','/hallo','/send']
 
     def handle(self,msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
         #print(content_type, chat_type, chat_id)
         if content_type == 'text':
              #bot.sendMessage(chat_id, msg['text'])
-            #print(chat_id, msg['chat']['first_name'])
+            #print(content_type, chat_type, chat_id)
              #check if it is a new user
             self.new_user(content_type, chat_type, chat_id, msg)
             self.on_chat_message(content_type, chat_type, chat_id, msg)
@@ -110,19 +112,17 @@ class MessageBot(object):
                 print(msg['chat']['first_name'],' sends to ',
                       self.users.user_name.loc[self.users['id'] == receiver_id].values[0])
                 #print(receiver_id)
-        else: #elif 'all' in recipients:
+
+        elif any(x in self.key_words for x in text.split()) is False: #elif 'all' in recipients:
             # the message goes out to all users, except the sender
             for receiver_id in self.users.id.values:
                 receiver_id = int(receiver_id)
                 if receiver_id != chat_id:
                     # finally send the text to all recipients
-                    self.bot.sendMessage(receiver_id, sender_says+text)
-
-        #elif recipients == []:
-        #    message = 'You did not specify a recipient. \n Include: &all \n if the message should go to all group members.'
-        #    pending_text = [[chat_id], [text]]
-        #    self.bot.message_loop(chat_id, message)
-
+                    try:
+                        self.bot.sendMessage(receiver_id, sender_says+text)
+                    except:
+                        pass
 
     def get_info(self, content_type, chat_type, chat_id, msg):
         # this will send the info message
@@ -145,3 +145,5 @@ class MessageBot(object):
                 user_list=str(u)+'\n'+user_list
             #user_list.append([u for u in user_list_array])
             self.bot.sendMessage(chat_id, str(user_list))
+
+

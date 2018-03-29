@@ -1,5 +1,5 @@
 # this is the info text
-info_text = 'So you need more information... OK!\n This is the NEW NEW NEW highly advanced messaging system. Forget about' \
+info_text = 'So you need more information... OK! \nThis is the NEW NEW NEW highly advanced messaging system. Forget about' \
             ' chat groups. If you want to send a message to one or several of your friends, ' \
             'just mention them with their user names in the text with a & at the beginning, e.g., &Hans &Inge and your message goes ' \
             'out to the users named Hans and Inge. \n' \
