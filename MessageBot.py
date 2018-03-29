@@ -12,7 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 
-from Data.TOKEN import TOKEN
+from TOKEN import TOKEN
 
 class MessageBot(object):
     def __init__(self):
