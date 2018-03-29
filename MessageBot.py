@@ -27,7 +27,9 @@ class MessageBot(object):
             self.users.to_csv('Data/user_list.csv')
 
         self._newuser_id = None
-        self.key_words = ['/info','/getusers','/start','/hallo','/send']
+        self._change_id = None
+
+        self.key_words = ['/info','/getusers','/start','/hallo','/send','/help','/bot','/sendtrans','/changeuser']
 
     def handle(self,msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
@@ -36,11 +38,16 @@ class MessageBot(object):
              #bot.sendMessage(chat_id, msg['text'])
             #print(content_type, chat_type, chat_id)
              #check if it is a new user
-            self.new_user(content_type, chat_type, chat_id, msg)
-            self.on_chat_message(content_type, chat_type, chat_id, msg)
+            adduser = self.new_user(content_type, chat_type, chat_id, msg)
+            chg_name = self.change_name(content_type, chat_type, chat_id, msg)
+
             self.get_info(content_type, chat_type, chat_id, msg)
             self.get_users(content_type, chat_type, chat_id, msg)
 
+            text = msg['text']
+            # only go there if there is no
+            if not any([adduser, chg_name]):
+                 self.on_chat_message(content_type, chat_type, chat_id, msg)
 
     def write_users(self,user_list):
         with open("users.csv", 'w') as users_file:
@@ -55,10 +62,16 @@ class MessageBot(object):
             greeter_msg = 'Welcome %s! You are new here. \n Chose a user name:' % msg['chat']['first_name']
             self.bot.sendMessage(chat_id,greeter_msg)
             self._newuser_id = chat_id
+
+            return True
+
         elif first_word in greeter_dict and chat_id in self.users['id'].values:
             this_name = self.users.user_name.loc[self.users['id']==chat_id].values[0]
             message = 'You already have a user name, it is:\n %s' % this_name
             self.bot.sendMessage(chat_id,message)
+
+            return True
+
         elif self._newuser_id == chat_id and chat_id not in self.users['id'].values:
             user_name = msg['text'].split(' ', 1)[0]
             if user_name not in self.users['user_name'].values:
@@ -78,10 +91,16 @@ class MessageBot(object):
                 self.users = self.users.append(new_user_dict,ignore_index=True)
                 # write the user list
                 self.users.to_csv('Data/user_list.csv')
+
             else:
                 # user name already exists
                 message = 'Sorry, your user name already exists.\nChoose a new one, please.'
                 self.bot.sendMessage(chat_id, message)
+
+            return True
+
+        else:
+            return False
 
 
     def on_chat_message(self, content_type, chat_type, chat_id, msg):
@@ -146,4 +165,34 @@ class MessageBot(object):
             #user_list.append([u for u in user_list_array])
             self.bot.sendMessage(chat_id, str(user_list))
 
+    def change_name(self, content_type, chat_type, chat_id, msg):
+        # this will send the user names
+        text = msg['text']
+        if text == '/changeuser':
+            current_name = self.users.user_name.loc[self.users['id'] == chat_id].values[0]
+            greeter_msg = 'So you want to change your name from %s to: ' % current_name
+            self.bot.sendMessage(chat_id,greeter_msg)
+            self._change_id = chat_id
+            return True
+        elif chat_id == self._change_id:
+            new_name = text.split(' ', 1)[0]
+            self.users.user_name.loc[self.users['id'] == chat_id] = new_name
+            update_name = self.users.user_name.loc[self.users['id'] == chat_id].values[0]
+            message = 'Good, your new user name is now: %s' % update_name
+            self.bot.sendMessage(chat_id, message)
+            self._change_id = None
+            # write the user list
+            self.users.to_csv('Data/user_list.csv')
+            return True
+        else:
+            return False
+
+
+    def update_keywords(self):
+        # update the blocking words
+        try:
+            from wordlist import keywords
+            self.key_words = keywords
+        except:
+            print('No key word list')
 
